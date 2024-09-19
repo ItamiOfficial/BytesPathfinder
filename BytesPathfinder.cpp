@@ -2,8 +2,6 @@
 
 #include "Pathfinding/BytesPathfinder.h"
 
-#include "Utility/StopWatch.h"
-
 constexpr int32 INITIAL_DISTANCE = 2000000;
 
 void UBytesPathfinder::FindPathsToNodes(FBytesGraph& Graph, const int32 StartID)
@@ -14,16 +12,10 @@ void UBytesPathfinder::FindPathsToNodes(FBytesGraph& Graph, const int32 StartID)
 	*  the Node with the lowest GCost
 	*/
 
-	// StopWatch
-	FStopWatch StopWatch;
-	
 	// This has to be a reference. When Nodes in the Grid get changed, they wont get changed inside the MinHeap
 	// And because they are not changed, this thing does not work.
 	FBytesPathfindingHeap Unvisited = FBytesPathfindingHeap(Graph.Nodes.Num());
-	
-	InitNodes(Graph);
-	StopWatch.Measure("Post Graph Init");
-	
+
 	// Set Starting Node to 0
 	Graph.Nodes[StartID].GCost = 0;
 
@@ -66,22 +58,13 @@ void UBytesPathfinder::FindPathsToNodes(FBytesGraph& Graph, const int32 StartID)
 		// Remove Late Print
 		// Unvisited.LogHeap();
 	}
-
-	StopWatch.Measure("Finished Djikstra with Heap");
-	StopWatch.Log();
 }
 
 void UBytesPathfinder::FindPath(FBytesGraph& Graph, const int32 StartID, const int32 TargetID)
 {
-	// Declare StopWatch and Start its Timer
-	FStopWatch StopWatch;
-
 	// Inits Nodes
 	InitNodes(Graph);
 
-	// Stop Time
-	StopWatch.Measure("Post Init Nodes");
-	
 	// Declare "Open List" and "Closed List"
 	FBytesPathfindingHeap OpenSet = FBytesPathfindingHeap(Graph.Nodes.Num());
 	TSet<int32> ClosedSet;
@@ -103,10 +86,6 @@ void UBytesPathfinder::FindPath(FBytesGraph& Graph, const int32 StartID, const i
 		if (CurrentNode->NodeID == TargetID)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Pathfinding: Path Found"));
-
-			// Stop Time
-			StopWatch.Measure("Post Path Found");
-			StopWatch.Log();
 			return;
 		}
 		
@@ -150,8 +129,6 @@ void UBytesPathfinder::FindPath(FBytesGraph& Graph, const int32 StartID, const i
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Pathfinding: No Path Found"));
-	StopWatch.Measure("Post No Path Found");
-	StopWatch.Log();
 }
 
 TArray<int32> UBytesPathfinder::GetNodesInRange(FBytesGraph& Graph, const int32 MaxTravelCost)
